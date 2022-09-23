@@ -1,36 +1,61 @@
 import {Sequelize, DataTypes, where, Op} from 'sequelize';
 
 // Option 2: Passing parameters separately (sqlite)
-const sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: './db.sqlite3'
-});
+// const sequelize = new Sequelize({
+//     dialect: 'sqlite',
+//     storage: './db.sqlite3'
+// });
+
+// Option 3: Passing parameters separately (other dialects)
+const sequelize = new Sequelize('postgres://postgres:ed9bd1dce33d828ce6801bdd622157ad94b83e5fb2230b9f3dc44b3bd5b3429b@localhost:5432/postgres');
+// const otro = new Sequelize('postgres://postgres:password@localhost:5432/postgres');
+
+try {
+    await sequelize.authenticate();
+    console.log('Connection has been established successfully.');
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+}
 
 // Define modelo de user
 const User = sequelize.define("User", {
-    nombre: DataTypes.STRING,
-    email: DataTypes.STRING,
-    direccion: DataTypes.STRING
+    nombre: {
+        type: DataTypes.STRING,
+        allowNull: false },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false },
+    direccion: {
+        type: DataTypes.STRING,
+        allowNull: false }
 });
 
 // Define modelo de Producto
 const Producto = sequelize.define("Producto", {
-    nombre:DataTypes.STRING,
-    precio:DataTypes.DOUBLE,
-    categoria:DataTypes.STRING,
+    nombre:{
+        type: DataTypes.STRING,
+        allowNull: false },
+    precio:{
+        type: DataTypes.DOUBLE,
+        allowNull: false },
+    categoria:{
+        type: DataTypes.STRING,
+        allowNull: false },
     descripcion:DataTypes.TEXT
 })
 
 // Define modelo de Venta
 const Order = sequelize.define("Order",{
     pago:DataTypes.DOUBLE,
-    fecha:DataTypes.DATE
+    fecha:{
+        type: DataTypes.DATE,
+        allowNull: false }
 });
 
-User.hasMany(Order);
+User.hasMany(Order, {foreignKey: {allowNull: false}});
 Order.belongsTo(User);
 
-Producto.hasMany(Order);
+Producto.hasMany(Order, {foreignKey: {allowNull: false}});
 Order.belongsTo(Producto);
 
 // await User.sync();
@@ -39,22 +64,31 @@ Order.belongsTo(Producto);
 
 await sequelize.sync();
 
-// const user = await User.create({
-//     nombre: "Dio",
-//     email: "dionicio@mail.com",
-//     direccion: "libramiento 226"
-// });
 
-// const producto = await Producto.create({
-//     nombre: "Jamon",
-//     precio: 50,
-//     categoria: "salchichoneria",
-//     descripcion: "para comer"
-// });
+// Create user, producto or order
+const user = await User.create({
+    nombre: "Alejandar",
+    email: "malee@mail.com",
+    direccion: "Aviacion 12"
+});
+
+const producto = await Producto.create({
+    nombre: "Queso",
+    precio: 60,
+    categoria: "lacteos",
+    descripcion: "para cenar"
+});
+
+const order = await Order.create({
+    pago: 60,
+    fecha: Date.now(),
+    ProductoId: producto.id,
+    UserId: user.id
+})
 
 // Loggear las tables
-// const usuarios = await User.findAll();
-// console.log(usuarios);
+const usuarios = await User.findAll();
+console.log(usuarios);
 
 // const productos = await Producto.findAll();
 // console.log(productos);
@@ -62,27 +96,50 @@ await sequelize.sync();
 // const orders = await Order.findAll();
 // console.log(orders);
 
-const resultado = await Producto.findAll();
+// const resultado = await Producto.findAll();
 // console.log(resultado.length);
 
 // Consultas con queries
-const menor_50 = await Producto.findAll({
-    where: { precio: {[Op.lte]: 50}}
-});
+// const menor_50 = await Producto.findAll({
+//     where: { precio: {[Op.lte]: 50}}
+// });
 // console.log(menor_50);
 
-const mayor_500 = await Producto.findAll({
-    where: { precio: {[Op.lte]: 500}}
-});
+// const mayor_500 = await Producto.findAll({
+//     where: { precio: {[Op.lte]: 500}}
+// });
 // console.log(mayor_500);
 
-const limitQuery = await Producto.findAll({
-    limit:3,
-    offset:1,
-    order:['precio'],
-    where: {
-        precio: {[Op.lte]:50}
-    }
-})
+// const limitQuery = await Producto.findAll({
+//     limit:3,
+//     offset:1,
+//     order:['precio'],
+//     where: {
+//         precio: {[Op.lte]:50}
+//     }
+// })
 
-limitQuery.forEach(Producto => console.log(Producto.nombre))
+// limitQuery.forEach(Producto => console.log(Producto.nombre, Producto.id))
+
+// Update a product by id
+// Producto.update({
+//     nombre: "Motoneta"},
+//    { where: {
+//         id: 2
+//     }
+// });
+
+// Delete a product by id
+// Producto.destroy(
+//    { where: {
+//         id: 1
+//     }
+// });
+
+// const borrado = await Producto.destroy({
+//     where:{
+//         id: 7
+//     }
+// });
+
+// console.log("productos borrados "+ borrado);
