@@ -6,9 +6,24 @@ import {Sequelize, DataTypes, where, Op} from 'sequelize';
 //     storage: './db.sqlite3'
 // });
 
+import pg from "pg";
+pg.defaults.ssl = true;
+
 // Option 3: Passing parameters separately (other dialects)
-const sequelize = new Sequelize('postgres://postgres:ed9bd1dce33d828ce6801bdd622157ad94b83e5fb2230b9f3dc44b3bd5b3429b@localhost:5432/postgres');
-// const otro = new Sequelize('postgres://postgres:password@localhost:5432/postgres');
+// Conected to Heroku DB named postgresql-regular-03530
+const sequelize = new Sequelize(
+    'd8dscl6vocjghu',
+    'skmwuklynnbvio', 
+    'ed9bd1dce33d828ce6801bdd622157ad94b83e5fb2230b9f3dc44b3bd5b3429b',
+    {
+    host: 'ec2-44-207-126-176.compute-1.amazonaws.com',
+    "dialect": "postgres",
+    "dialectOptions": {
+        "ssl": {
+        "rejectUnauthorized": false
+        }
+    }   
+});
 
 try {
     await sequelize.authenticate();
@@ -66,60 +81,60 @@ await sequelize.sync();
 
 
 // Create user, producto or order
-const user = await User.create({
-    nombre: "Alejandar",
-    email: "malee@mail.com",
-    direccion: "Aviacion 12"
-});
+// const user = await User.create({
+//     nombre: "Alejandar",
+//     email: "malee@mail.com",
+//     direccion: "Aviacion 12"
+// });
 
-const producto = await Producto.create({
-    nombre: "Queso",
-    precio: 60,
-    categoria: "lacteos",
-    descripcion: "para cenar"
-});
+// const producto = await Producto.create({
+//     nombre: "Queso",
+//     precio: 60,
+//     categoria: "lacteos",
+//     descripcion: "para cenar"
+// });
 
-const order = await Order.create({
-    pago: 60,
-    fecha: Date.now(),
-    ProductoId: producto.id,
-    UserId: user.id
-})
+// const order = await Order.create({
+//     pago: 60,
+//     fecha: Date.now(),
+//     ProductoId: producto.id,
+//     UserId: user.id
+// })
 
 // Loggear las tables
 const usuarios = await User.findAll();
 console.log(usuarios);
 
-// const productos = await Producto.findAll();
-// console.log(productos);
+const productos = await Producto.findAll();
+console.log(productos);
 
-// const orders = await Order.findAll();
-// console.log(orders);
+const orders = await Order.findAll();
+console.log(orders);
 
-// const resultado = await Producto.findAll();
-// console.log(resultado.length);
+const resultado = await Producto.findAll();
+console.log(resultado.length);
 
 // Consultas con queries
-// const menor_50 = await Producto.findAll({
-//     where: { precio: {[Op.lte]: 50}}
-// });
-// console.log(menor_50);
+const menor_50 = await Producto.findAll({
+    where: { precio: {[Op.lte]: 50}}
+});
+console.log(menor_50);
 
-// const mayor_500 = await Producto.findAll({
-//     where: { precio: {[Op.lte]: 500}}
-// });
-// console.log(mayor_500);
+const mayor_500 = await Producto.findAll({
+    where: { precio: {[Op.lte]: 500}}
+});
+console.log(mayor_500);
 
-// const limitQuery = await Producto.findAll({
-//     limit:3,
-//     offset:1,
-//     order:['precio'],
-//     where: {
-//         precio: {[Op.lte]:50}
-//     }
-// })
+const limitQuery = await Producto.findAll({
+    limit:3,
+    offset:1,
+    order:['precio'],
+    where: {
+        precio: {[Op.lte]:50}
+    }
+})
 
-// limitQuery.forEach(Producto => console.log(Producto.nombre, Producto.id))
+limitQuery.forEach(Producto => console.log(Producto.nombre, Producto.id))
 
 // Update a product by id
 // Producto.update({
@@ -138,7 +153,7 @@ console.log(usuarios);
 
 // const borrado = await Producto.destroy({
 //     where:{
-//         id: 7
+//         id: 1
 //     }
 // });
 
