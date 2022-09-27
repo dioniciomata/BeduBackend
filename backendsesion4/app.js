@@ -2,6 +2,12 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
+
+app.get('/', (req, res) => {
+    res.send("Hola Dio!");
+})
+
+// GODS
 const gods = {
     zeus: {  home: 'olimpo', name: 'zeus'}, 
     hades: { home:'infierno', name: 'hades'}, 
@@ -23,15 +29,41 @@ app.get('/gods', (req, res) => {
     }
 })
 
-// app.get('/gods/:name', (req, res, next) => {
-//     const god = gods[req.params.name];
-//     if (god) {
-//       res.send(god);
-//     } else {
-//       res.status(404).send('God Not Found');
-//     }
-//   });
+app.post('/gods/:name', (req, res)=>{
+    const name = req.params.name;
+    const data = req.body;
+    gods[name] = data;
+    res.status(201).json(gods);
+})
 
+app.get('/gods/:name', (req, res)=>{
+    const name = req.params.name;
+    res.json(gods[name]);
+})
+
+app.put('/gods/:name', (req, res)=>{
+
+    const name = req.params.name;
+    if (!(name in gods)){
+        res.status(404).json({error: "God not found"});
+        return;
+    }
+    const data = req.body;
+    gods[name] = data;
+    res.send(gods);
+})
+
+app.delete('/gods/:name', (req, res)=>{
+    const name = req.params.name;
+    if (!(name in gods)){
+        res.status(404).json({error: "God not found"});
+        return;
+    }
+   delete gods[name];
+    res.json(gods);
+})
+
+// CONSTELACIONES  
 const constelaciones = {
     andromeda : {
 	abreviatura : 'And',
@@ -48,40 +80,57 @@ const constelaciones = {
 }
 
 app.get('/constelaciones', (req, res) => {
+    const abreviatura = req.query.abreviatura;
+    if (abreviatura){
+        let filtered_stars = Object.entries(constelaciones).filter(constelacion => constelacion[1].abreviatura===abreviatura);
+        if (filtered_stars.length===0){
+            res.status(404).json({error: "No stars found"});
+            return;
+        }
+        filtered_stars = Object.fromEntries(filtered_stars);
+        res.json(filtered_stars);
+    } else {
+        res.json(constelaciones);
+    }
+})
+
+app.get('/constelaciones/:name', (req, res) => {
+
+    const name = req.params.name;
+    if (!(name in constelaciones)){
+        res.status(404).json({error: "constelation not found"});
+        return;
+    }
+    res.json(constelaciones[name]); 
+});
+
+app.post('/constelaciones/:name', (req, res)=>{
+    const name = req.params.name;
+    const data = req.body;
+    constelaciones[name] = data;
+    res.status(201).json(constelaciones);
+})
+
+app.put('/constelaciones/:name', (req, res)=>{
+
+    const name = req.params.name;
+    if (!(name in constelaciones)){
+        res.status(404).json({error: "Star not found"});
+        return;
+    }
+    const data = req.body;
+    constelaciones[name] = data;
+    res.send(constelaciones);
+})
+
+app.delete('/constelaciones/:name', (req, res)=>{
+    const name = req.params.name;
+    if (!(name in constelaciones)){
+        res.status(404).json({error: "Star not found"});
+        return;
+    }
+   delete constelaciones[name];
     res.json(constelaciones);
-})
-
-app.get('/', (req, res) => {
-    res.send("Hola Dio!");
-})
-
-app.post('/gods/:name', (req, res)=>{
-    const name = req.params.name;
-    const data = req.body;
-    gods[name] = data;
-    res.status(201).json(gods[name]);
-})
-
-app.put('/gods/:name', (req, res)=>{
-
-    const name = req.params.name;
-    if (!(name in gods)){
-        res.status(404).json({error: "God not found"});
-        return;
-    }
-    const data = req.body;
-    gods[name] = data;
-    res.send(gods[name]);
-})
-
-app.delete('/gods/:name', (req, res)=>{
-    const name = req.params.name;
-    if (!(name in gods)){
-        res.status(404).json({error: "God not found"});
-        return;
-    }
-   delete gods[name];
-    res.json({deleted: true});
 })
 
 const PORT = 3000;
