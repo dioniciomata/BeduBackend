@@ -19,7 +19,25 @@ async function getUsuario(req, res){
 
 async function getUsuarios(req, res){
     const usuarios = await Usuario.findAll();
-    res.json(usuarios);
+    const nombre = req.query.nombre;
+    const email = req.query.email; 
+    const direccion = req.query.direccion;
+    function Resultados(query){
+        if (query.length!==0){
+            return res.status(200).json(query);
+        } else {return res.status(400).json({message: "no users match the query"})}
+    };
+    if (nombre){
+        const resultados = await Usuario.findAll({where: {nombre: nombre}})
+        return Resultados(resultados);
+    } else  if (email){
+        const resultados = await Usuario.findAll({where: {email: email}})
+        return Resultados(resultados);
+    } else if (direccion){
+        const resultados = await Usuario.findAll({where: {direccion: direccion}})
+        return Resultados(resultados);
+    }
+    return res.status(200).json(usuarios);
 }
 
 async function updateUsuario(req, res){
