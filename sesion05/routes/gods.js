@@ -12,6 +12,6 @@ router.get('/', auth.opcional, getGods);
 router.get('/:id', auth.opcional, getGod);
 router.post('/:id', auth.required , createGod);
 router.put('/:id', auth.required , updateGod);
-router.delete('/:id', auth.required, deleteGod);
+router.delete('/:id', auth.isAdmin, deleteGod);
 
 module.exports = router;

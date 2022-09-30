@@ -13,12 +13,28 @@ function getTokenFromHeader(req) {
 }
 
 const auth = {
+    // required: function (req,res,next){
+    //     if (!req.auth || !req.auth.user){
+    //         return res.sendStatus(401);
+    //     }
+    //     next();
+    // },
     required: expressjwt({
       secret: secret,
       algorithms: ['HS256'],
       userProperty: 'user',
       getToken: getTokenFromHeader
     }),
+    isAdmin: function (req,res,next){
+        console.log(req.auth.username);
+        if (!req.auth){
+            return res.sendStatus(401);
+        }
+        if (req.auth.username !== 'admin'){
+           return res.sendStatus(403);
+        }
+        next();
+    },
     opcional: expressjwt({
       secret: secret,
       algorithms: ['HS256'],
