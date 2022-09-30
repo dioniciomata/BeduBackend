@@ -1,5 +1,18 @@
 const User = require('../models/users');
 
+async function getUsers(req, res){
+    const users = await User.findAll();
+    return res.status(201).json(users);
+}
+
+async function deleteUser(req, res){
+    const id = req.params.id;
+    const deleted = User.destroy(
+        {where: {id}}
+    ); //{id: id} or {id}
+    res.status(200).json({deleted : "deleted"});
+}
+
 async function signUp(req,res){
     const body = req.body;
     try {
@@ -28,10 +41,14 @@ async function logIn(req,res){
         return res.status(404).json({error: "user not found"})
     }
     if (User.validarPassword(body['password'], user.password_salt, user.password_hash) ){
-        return res.status(200).json({mensaje: "welcome"})
+        return res.status(200).json({
+            user: user.username,
+            email: user.email,
+            token: User.generateJWT(user),
+        }); // JWT
     } else {
         return res.status(400).json({mensaje: "incorrect"})
     }
 }
 
-module.exports = {signUp, logIn};
+module.exports = {signUp, logIn, getUsers, deleteUser};

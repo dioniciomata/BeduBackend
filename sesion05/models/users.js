@@ -2,9 +2,9 @@ const {Sequelize, DataTypes} = require('sequelize');
 const sequelize = require('../config/db');
 
 const crypto = require('crypto');                             
-// const jwt = require('jsonwebtoken');                          
+const jwt = require('jsonwebtoken');                          
 //Importando módulo jsonwebtoken, pendiente de instalar.
-// const secret = require('../config').secret;                   
+const secret = require('../config/secret');
 // ???? es un misterio que resolveremos en la última sesión
 
 const User = sequelize.define('User',{
@@ -67,6 +67,19 @@ User.validarPassword = function (password, user_salt, user_hash)  {
       .pbkdf2Sync(password, user_salt, 10000, 512, "sha512")
       .toString("hex");
     return user_hash === hash;
-  }
+}
 
+User.generateJWT = function(user){
+    const today = new Date();
+    const exp = new Date(today);
+    exp.setDate(today.getDate() + 60); // 60 días antes de expirar
+
+    return jwt.sign({
+        id: user._id,
+        username: user.username,
+        exp: parseInt(exp.getTime() / 1000), // En segundos
+    }, secret);
+}
+
+ 
 module.exports = User;

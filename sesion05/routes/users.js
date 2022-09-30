@@ -1,8 +1,9 @@
 const router = require('express').Router();
-const {signUp, logIn} = require('../controllers/users');
+const {signUp, logIn, getUsers, deleteUser} = require('../controllers/users');
 
-router.post('/', signUp);
-router.post('/users/signup', signUp);
-router.post('/users/login', logIn);
+router.get('/', getUsers);
+router.post('/signup', signUp);
+router.post('/login', logIn);
+router.delete('/:id', deleteUser);
 
 module.exports = router;
