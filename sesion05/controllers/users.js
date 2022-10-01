@@ -45,7 +45,7 @@ async function logIn(req,res){
             user: user.username,
             email: user.email,
             token: User.generateJWT(user),
-        }); // JWT
+        }); // método que nos regrese una representación en JSON del usuario ya autenticado JWT
     } else {
         return res.status(400).json({mensaje: "incorrect"})
     }
